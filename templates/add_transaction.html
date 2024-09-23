@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Transactions</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        nav a {
+            margin-right: 15px;
+            text-decoration: none;
+            color: #007bff;
+        }
+        nav a:hover {
+            text-decoration: underline;
+        }
+        footer {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Add Transactions</h1>
+        <nav>
+            <a href="{{ url_for('dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </nav>
+    </header>
+
+    <section>
+        <form method="POST" action="{{ url_for('add_transaction') }}">
+            <div id="transaction-fields">
+                <div class="transaction-entry">
+                    <div class="form-group">
+                        <label for="amount">Amount:</label>
+                        <input type="number" name="amount" step="0.01" class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description">Description:</label>
+                        <input type="text" name="description" class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="transaction_type">Transaction Type:</label>
+                        <select name="transaction_type" class="form-control" required>
+                            <option value="income">Income</option>
+                            <option value="expense">Expense</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="date">Date:</label>
+                        <input type="date" name="date" class="form-control" required>
+                    </div>
+                </div>
+            </div>
+
+            <button type="button" class="btn btn-secondary" id="add-more">Add Another Transaction</button>
+            <button type="submit" class="btn btn-primary">Submit Transactions</button>
+        </form>
+    </section>
+
+    <footer>
+        <p>&copy; 2024 FinTrack. All rights reserved.</p>
+    </footer>
+
+    <script>
+    document.getElementById('add-more').addEventListener('click', function() {
+        const transactionFields = document.getElementById('transaction-fields');
+        const newTransaction = document.querySelector('.transaction-entry').cloneNode(true);
+
+        // Clear the values in the cloned fields
+        const inputs = newTransaction.querySelectorAll('input, select');
+        inputs.forEach(input => input.value = '');
+
+        transactionFields.appendChild(newTransaction);
+    });
+    </script>
+</body>
+</html>

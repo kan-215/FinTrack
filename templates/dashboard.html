@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .navbar {
+            background-color: #007bff;
+        }
+        .navbar-nav .nav-link {
+            color: white;
+            margin-right: 10px;
+        }
+        .navbar-nav .nav-link:hover {
+            background-color: #ff9800;
+            color: white;
+            border-radius: 5px;
+        }
+        .table {
+            margin-top: 20px;
+        }
+        .chart-container {
+            margin-top: 40px;
+        }
+        .chart {
+            max-width: 600px; /* Adjust the maximum width as needed */
+            height: 300px;    /* Adjust the height as needed */
+            margin: 0 auto;   /* Center the chart */
+        }
+        .logo {
+            width: 50px; 
+            height: auto;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <a class="navbar-brand" href="{{ url_for('dashboard') }}">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" class="logo" alt="App Logo">
+            Fintrack
+        </a>
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('dashboard') }}">Dashboard</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('expenses') }}">Expenses</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('income') }}">Income</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('account') }}">Account</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('add_transaction') }}">Add Transaction</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}">Logout</a></li>
+        </ul>
+    </nav>
+
+    <div class="container mt-5">
+        <h2 class="text-center">Transaction Overview</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Description</th>
+                    <th>Amount</th>
+                    <th>Type</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for transaction in transactions %}
+                <tr>
+                    <td>{{ transaction.description }}</td>
+                    <td>{{ transaction.amount }}</td>
+                    <td>{{ transaction.transaction_type }}</td>
+                    <td>{{ transaction.date }}</td>
+                    <td>
+                        <a href="{{ url_for('edit_transaction', transaction_id=transaction.id) }}" class="btn btn-edit">Edit</a>
+                        <form action="{{ url_for('delete_transaction', transaction_id=transaction.id) }}" method="POST" style="display:inline;">
+                            <button type="submit" class="btn btn-delete">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="chart-container text-center">
+            <h3>Income vs Expense</h3>
+            <canvas id="incomeExpenseChart" class="chart"></canvas>
+        </div>
+
+        <div class="chart-container text-center">
+            <h3>Expense Distribution</h3>
+            <canvas id="expensePieChart" class="chart"></canvas>
+        </div>
+        
+        <div class="chart-container text-center">
+            <h3>Income and Expense Over Time</h3>
+            <canvas id="lineChart" class="chart"></canvas>
+        </div>
+    </div>
+
+    <script>
+        const transactions = {{ transactions | tojson }};
+        
+        // Prepare data for charts
+        const income = [];
+        const expenses = [];
+        const dates = [];
+        const expenseCategories = {};
+
+        transactions.forEach(t => {
+            if (t.transaction_type === 'income') {
+                income.push(t.amount);
+                expenses.push(0); // Placeholder for expenses
+            } else {
+                expenses.push(t.amount);
+                income.push(0); // Placeholder for income
+                expenseCategories[t.description] = (expenseCategories[t.description] || 0) + t.amount;
+            }
+            dates.push(new Date(t.date).toLocaleDateString());
+        });
+
+        // Bar chart for income vs expenses
+        const ctx = document.getElementById('incomeExpenseChart').getContext('2d');
+        const incomeExpenseChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: dates,
+                datasets: [
+                    {
+                        label: 'Income',
+                        data: income,
+                        backgroundColor: 'rgba(0, 123, 255, 0.5)',
+                        borderColor: 'rgba(0, 123, 255, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Expense',
+                        data: expenses,
+                        backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                scales: {
+                    x: { display: true },
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+
+        // Pie chart for expense distribution
+        const pieLabels = Object.keys(expenseCategories);
+        const pieData = Object.values(expenseCategories);
+
+        const pieCtx = document.getElementById('expensePieChart').getContext('2d');
+        const expensePieChart = new Chart(pieCtx, {
+            type: 'pie',
+            data: {
+                labels: pieLabels,
+                datasets: [{
+                    label: 'Expense Distribution',
+                    data: pieData,
+                    backgroundColor: [
+                        '#FF6384',
+                        '#36A2EB',
+                        '#FFCE56',
+                        '#FF9F40',
+                        '#4BC0C0'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'top' },
+                    title: {
+                        display: true,
+                        text: 'Expense Distribution by Category'
+                    }
+                }
+            }
+        });
+
+        // Line chart for income and expenses over time
+        const lineCtx = document.getElementById('lineChart').getContext('2d');
+        const lineChart = new Chart(lineCtx, {
+            type: 'line',
+            data: {
+                labels: dates,
+                datasets: [
+                    {
+                        label: 'Income',
+                        data: income,
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1,
+                        fill: true
+                    },
+                    {
+                        label: 'Expense',
+                        data: expenses,
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1,
+                        fill: true
+                    }
+                ]
+            },
+            options: {
+                scales: {
+                    x: { display: true },
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinTrack - Welcome</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+            min-height: 100vh; /* Ensure body takes at least full height */
+            display: flex;
+            flex-direction: column;
+        }
+        .container {
+            margin-top: 50px;
+            text-align: center;
+            flex: 1; /* Allow the container to grow and take available space */
+        }
+        h1 {
+            color: #ff9800;
+            font-size: 3em;
+            font-weight: bold;
+        }
+        .btn-primary, .btn-success {
+            padding: 10px 20px;
+            border: none;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        .about-us {
+            margin: 40px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .about-us h3 {
+            color: #007bff;
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .about-us p {
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+        .login-prompt {
+            color: #000000;
+            font-size: 1.1em;
+        }
+        .footer {
+            text-align: center;
+            padding: 15px;
+            background-color: #079be098;
+            color: white;
+            margin-top: auto; /* Push footer to the bottom */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Logo -->
+        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="FinTrack Logo" width="150">
+        
+        <!-- Welcome Message -->
+        <h1>Welcome to FinTrack</h1>
+        <p>Your personal tool to track income and expenses efficiently.</p>
+
+        <!-- About Us Section -->
+        <div class="about-us">
+            <h3>About Us</h3>
+            <p>FinTrack is a comprehensive platform designed to help users manage their personal finances. 
+            We provide an easy way to track income, expenses, and financial habits. Our mission is to make personal 
+            finance management accessible to everyone.</p>
+            <br>
+            <span class="login-prompt">Please Login or Create an Account to start managing your finances.</span>
+        </div>
+
+        <!-- Login and Create Account Buttons -->
+        <a href="{{ url_for('login') }}" class="btn btn-primary">Login</a>
+        <a href="{{ url_for('register') }}" class="btn btn-success">Create Account</a>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        &copy; 2024 FinTrack. All rights reserved.
+    </div>
+</body>
+</html>
